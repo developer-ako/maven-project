@@ -1,5 +1,12 @@
 pipeline {
     agent any
+    parameters {
+        string(name: 'tomcat_dev', defaultValue: '52.221.189.28', description: 'Staging Server')
+        string(name: 'tomcat_prod', defaultValue: '13.250.109.141', description: 'Production Server')
+    }
+    triggers {
+        pollSCM('* * * * *')
+    }
     stages {
         stage('Build') {
             steps {
@@ -12,24 +19,17 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Staging') {
-            steps {
-                build 'deploy-to-staging'
-            }
-        }
-        stage('Deploy to Production') {
-            steps {
-                timeout(time:5, unit:'DAYS') {
-                    input message: 'Approve PRODUCTION Deployment?', submitter: 'admin'
+        stage('Deployments') {
+            parallel {
+                stage('Deploy to Staging') {
+                    steps {
+                        bat "winscp -i <AWS pem file on your laptop> **target/*.war <user>@${params.tomcat_dev}:/var/lib/tomcat7/webapps"
+                    }
                 }
-                build 'deploy-to-prod'
-            }
-            post {
-                success {
-                    echo 'Code deployed to Production.'
-                }
-                failure {
-                    echo 'Deployment failed.'
+                stage('Deploy to Production') {
+                    steps {
+                        bat "winscp -i <AWS pem file on your laptop> **target/*.war <user>@${params.tomcat_prod}:/var/lib/tomcat7/webapps"
+                    }
                 }
             }
         }
