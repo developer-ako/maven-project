@@ -23,12 +23,12 @@ pipeline {
             parallel {
                 stage('Deploy to Staging') {
                     steps {
-                        bat "winscp -i <AWS pem file on your laptop> **target/*.war ec2-user@${params.tomcat_dev}:/var/lib/tomcat7/webapps"
+                        bat "winscp -i D:\\PIWS\\OneDrive\\DEV\\AWS\\tomcat-demo.pem **target/*.war ec2-user@${params.tomcat_dev}:/var/lib/tomcat7/webapps"
                     }
                 }
                 stage('Deploy to Production') {
                     steps {
-                        bat "winscp -i <AWS pem file on your laptop> **target/*.war ec2-user${params.tomcat_prod}:/var/lib/tomcat7/webapps"
+                        bat "winscp -i D:\\PIWS\\OneDrive\\DEV\\AWS\\tomcat-demo.pem **target/*.war ec2-user${params.tomcat_prod}:/var/lib/tomcat7/webapps"
                     }
                 }
             }
